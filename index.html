@@ -36,7 +36,7 @@
     }
 
     .container {
-      background: rgba(255, 255, 255, 0.8);
+      background: rgba(255, 255, 255, 0.85);
       padding: 30px;
       border-radius: 16px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
@@ -52,14 +52,14 @@
       font-weight: 600;
     }
 
-    label, input, select, .output-container {
+    label, input, .output-container {
       font-size: 18px;
       margin-bottom: 15px;
       display: block;
       width: 100%;
     }
 
-    input[type="time"], select {
+    input[type="time"] {
       padding: 12px;
       border: 1px solid #ccc;
       border-radius: 8px;
@@ -74,12 +74,40 @@
       transition: 0.3s;
     }
 
-    input[type="time"]:focus, select:focus {
+    input[type="time"]:focus {
       border: 2px solid #a6c1ee;
     }
 
-    label[for="workType"] {
+    .toggle-group {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
       margin-top: 20px;
+    }
+
+    .toggle-option {
+      position: relative;
+    }
+
+    .toggle-option input {
+      display: none;
+    }
+
+    .toggle-option label {
+      padding: 10px 20px;
+      border: 2px solid #a6c1ee;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 16px;
+      color: #444;
+      background: #fff;
+    }
+
+    .toggle-option input:checked + label {
+      background: #a6c1ee;
+      color: #fff;
+      font-weight: 600;
     }
 
     #logoutTime {
@@ -108,12 +136,20 @@
     <label for="startTime">Enter Login Time (24-hour format HH:MM):</label>
     <input type="time" id="startTime" required>
 
-    <label for="workType">Select Work Duration:</label>
-    <select id="workType">
-      <option value="8.5">Full Day (8.5 hours)</option>
-      <option value="7.5">Early Logout (7.5 hours)</option>
-      <option value="4.5">Half Day (4.5 hours)</option>
-    </select>
+    <div class="toggle-group">
+      <div class="toggle-option">
+        <input type="radio" name="workType" id="fullDay" value="8.5" checked>
+        <label for="fullDay">Full Day (8.5h)</label>
+      </div>
+      <div class="toggle-option">
+        <input type="radio" name="workType" id="earlyLogout" value="7.5">
+        <label for="earlyLogout">Early (7.5h)</label>
+      </div>
+      <div class="toggle-option">
+        <input type="radio" name="workType" id="halfDay" value="4.5">
+        <label for="halfDay">Half (4.5h)</label>
+      </div>
+    </div>
 
     <div id="logoutTime" class="output-container"></div>
     <div id="remainingTime" class="output-container"></div>
@@ -125,7 +161,7 @@
 
     function updateLogoutTime() {
       const startTimeInput = document.getElementById('startTime').value;
-      const workType = parseFloat(document.getElementById('workType').value);
+      const workType = parseFloat(document.querySelector('input[name="workType"]:checked').value);
 
       if (!startTimeInput) {
         document.getElementById('logoutTime').innerText = "Please enter a valid login time.";
@@ -174,7 +210,9 @@
 
     // Attach event listeners
     document.getElementById('startTime').addEventListener('change', updateLogoutTime);
-    document.getElementById('workType').addEventListener('change', updateLogoutTime);
+    document.querySelectorAll('input[name="workType"]').forEach(el => {
+      el.addEventListener('change', updateLogoutTime);
+    });
   </script>
 </body>
 </html>
