@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Logout Time Calculator</title>
+  
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #333;
+
+      /* Animated Pastel Gradient Background */
+      background: linear-gradient(-45deg, #fbc2eb, #a6c1ee, #d4fc79, #96e6a1);
+      background-size: 400% 400%;
+      animation: gradientShift 20s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.8);
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+      backdrop-filter: blur(8px);
+    }
+
+    h2 {
+      color: #444;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    label, input, select, .output-container {
+      font-size: 18px;
+      margin-bottom: 15px;
+      display: block;
+      width: 100%;
+    }
+
+    input[type="time"], select {
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-top: 8px;
+      width: 100%;
+      max-width: 300px;
+      margin: 0 auto;
+      background: #fff;
+      color: #333;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    input[type="time"]:focus, select:focus {
+      border: 2px solid #a6c1ee;
+    }
+
+    label[for="workType"] {
+      margin-top: 20px;
+    }
+
+    #logoutTime {
+      font-size: 24px;
+      color: #4caf50;
+      margin-top: 15px;
+      font-weight: 600;
+    }
+
+    #remainingTime {
+      font-size: 18px;
+      color: #ff5252;
+      font-weight: 500;
+    }
+
+    #currentTime {
+      font-size: 18px;
+      color: #444;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Logout Time Calculator</h2>
+    <label for="startTime">Enter Login Time (24-hour format HH:MM):</label>
+    <input type="time" id="startTime" required>
+
+    <label for="workType">Select Work Duration:</label>
+    <select id="workType">
+      <option value="8.5">Full Day (8.5 hours)</option>
+      <option value="7.5">Early Logout (7.5 hours)</option>
+      <option value="4.5">Half Day (4.5 hours)</option>
+    </select>
+
+    <div id="logoutTime" class="output-container"></div>
+    <div id="remainingTime" class="output-container"></div>
+    <div id="currentTime" class="output-container"></div>
+  </div>
+
+  <script>
+    let logoutDate; // Global variable for logout time
+
+    function updateLogoutTime() {
+      const startTimeInput = document.getElementById('startTime').value;
+      const workType = parseFloat(document.getElementById('workType').value);
+
+      if (!startTimeInput) {
+        document.getElementById('logoutTime').innerText = "Please enter a valid login time.";
+        document.getElementById('remainingTime').innerText = "";
+        return;
+      }
+
+      const [hours, minutes] = startTimeInput.split(':').map(Number);
+      const startDate = new Date();
+      startDate.setHours(hours, minutes, 0);
+
+      logoutDate = new Date(startDate.getTime() + workType * 60 * 60 * 1000);
+
+      const logoutHours = String(logoutDate.getHours()).padStart(2, '0');
+      const logoutMinutes = String(logoutDate.getMinutes()).padStart(2, '0');
+      document.getElementById('logoutTime').innerText = `Your logout time is: ${logoutHours}:${logoutMinutes}`;
+    }
+
+    function updateRemainingTime() {
+      const now = new Date();
+      if (logoutDate) {
+        const remainingTimeMs = logoutDate - now;
+
+        if (remainingTimeMs > 0) {
+          const remainingHours = Math.floor(remainingTimeMs / (1000 * 60 * 60));
+          const remainingMinutes = Math.floor((remainingTimeMs % (1000 * 60 * 60)) / (1000 * 60));
+          const remainingSeconds = Math.floor((remainingTimeMs % (1000 * 60)) / 1000);
+          document.getElementById('remainingTime').innerText = `Time remaining: ${remainingHours}h ${remainingMinutes}m ${remainingSeconds}s`;
+        } else {
+          document.getElementById('remainingTime').innerText = "Logout time has passed!";
+        }
+      }
+    }
+
+    function updateCurrentTime() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      document.getElementById('currentTime').innerText = `Current Time: ${hours}:${minutes}:${seconds}`;
+    }
+
+    // Set up periodic updates
+    setInterval(updateCurrentTime, 1000);
+    setInterval(updateRemainingTime, 1000);
+
+    // Attach event listeners
+    document.getElementById('startTime').addEventListener('change', updateLogoutTime);
+    document.getElementById('workType').addEventListener('change', updateLogoutTime);
+  </script>
+</body>
+</html>
